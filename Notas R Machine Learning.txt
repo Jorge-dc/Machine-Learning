@@ -1,0 +1,128 @@
+----------------------
+SELECCION DE VARIABLES
+----------------------
+require(ggcorrplot)	<- mapa de calor de correlaciones
+require(glmnet)		<- modelos lineales generalizados
+require(e1071)		<- support vector machine
+require(randomForest)	<- modelos de machine learning
+require(lubridate)	<- fechas
+require(dplyr)
+require(IRkernel)	<- sirve para el notebook
+require(repr)		<- sirve para el notebook
+
+accuracy: que porncetaje de las observaciones que predije realmente eran correctas
+kappa: corrige al accuracy segun el desbalance de clases
+
+#INSPECCION VISUAL Y ELIMINACION POR SENTIDO COMUN
+variables que debemos descartar
+	- variables de tipo ID
+	- variables que no varian
+	- variables con excesiva cantidad de NAs
+describe(dataset)
+
+#CORRELACION
+debemos eliminar variables altamente correlacionadas
+	dataset <- dataframe %>% select(-variable_correlacionada)
+	cor_matrix <- cor(dataset)	<- correlacion
+	ggcorrplot(cor_matrix)		<- grafico de correlacion
+drop_cor <- function(dataset, cut_off = 0.6){	<- se asigna un corte de entre 0.6 y 0.75 en adelante para asumir que tienen alta correlacion
+	l <- 1					<- las variables que se arrojen en esta funcion debiesen ser eliminadas
+	index <- c()
+	aux <- cor(dataset)
+	for(k in 2:(dim(aux)[1])){
+		for(i in 1:(k-1)){
+			if(abs(aux[k,i]) >= cut_off){
+			index[l] <- i
+			l <- l + q
+			}
+		}
+	}
+
+#REGRESION LASSO (LEAST ABSOLUTE SHRINKAGE AND SELECTION OPERATOR)
+tipo de regularizacion que penaliza en proporcion al valor absoluto del peso asociado a la variable
+el parametro alfa controla el nivel de penalizacion (norma L1 y norma L2)
+	- si alfa = 1 <- regresion Lasso
+	- si alfa = 0 <- regresion Ridge
+	- si 0 < alfa < 1 <- Elastic-net Penalty
+x <- as.matrix(dataset)	<- recibe solo matrices
+y <- as.double(as.matrix(ifelse(dataset == "CONFIRMED", 1, 0)))	<- solo se deben dejar dos clases de la variable target
+set.seed(100)
+cv.lasso <- cv.glmnet(x, y,
+			family = 'binomial',	<- dado que son dos clases
+			alpha = 1,  		<- para que sea regresion Lasso
+			parallel = TRUE,	<- para ejecutar modelos en paralelo de acuerdo a los procesadores
+			standardize = TRUE,
+			nfolds = 5,		
+			type.measure = 'auc')
+plot(cv.lasso)	<- el AUC es el area bajo la curva (medida de calidad de ajuste), mientras mas cercano a 1 el modelo es mejor
+la recta vertical indica que si yo quito esa cantidad de variables, el AUC no cambia nada
+coeficientes <- roud(as.matrix(coef(cv.lasso, s = cv.lasso$lambda.min)), 2)
+coef_results <- data.frame(Variable = rownames(coeficientes), Coef = as.numeric(coeficientes[,1]))
+coef_results	<- todas las variables con coeficiente = 0 deben ser eliminados del modelo
+coef_results[coef_results$Coef != 0]	<- variables con coeficientes distintos de cero
+
+#STEP WISE FORWARD/BACKWARD SELECTION MODEL
+se van agregando o quitando variables para encontrar el menor AIC (Criterio de Informacion de Akaike)
+base_model <- lm(variable_y ~ 1, data = dataset)	<- modelo solo con intercepto, sin variables
+full_model <- lm(variable_y ~ ., data = dataset)	<- modelo full, incluye todas las variables
+step_model <- step(full_model, scope = list(lower = base_model, upper = full_model),	<- modelo backward
+		direction = 'backward', steps = 1000)
+step_model <- step(base_model, scope = list(lower = base_model, upper = full_model),	<- modelo forward
+		direction = 'forward', steps = 1000)
+step_model
+
+#RECURSIVE FEATURE ELIMINATION (RFE)
+recursivamente elimina variables a traves de un modelo de machine learning dependiendo de su importancia
+sirve para modelos de regresion o de clasificacion
+install.packages('caret')
+control <- rfeControl(functions = rfFuncs,	<- modelo de Random Forest de machine learning
+		      method = 'repeatedcv'	<- metodo a traves del cual generara la importancia
+		      repeats = 1		<- veces que repetira la validacion cruzada
+		      number = 5)		<- numero de folds en la validacion cruzada
+X <- dataset <- corresponde a las features del dataset
+Y <- as.factor(dataset$variable_y)	<- es tipico en machine learning usar as.factor() para generar variables de clasificacion
+RFE_method <- rfe(x = X, y = Y, size = c(20, 23), rfeControl = control) <- size es el numero de features con el que debiesemos quedar
+RFE_method
+ggplot(data = RFE_method, metric = 'Accuracy') + theme_bw()	<- grafico de accuracy
+ggplot(data = REF_method, metric = 'Kappa') + theme_bw() 	<- grafico de kappa
+varimp_data <- data.frame(feature = row.names(varImp(RFE_method))[1:],				<- entrega un grafico de impotancia de variables
+			  importance = varImp(RFE_mehotd)[1:9, 1])
+ggplot(data = varimp_data, aes(x = reorder(feature, -importance), y = importance, fill = feature)) +
+	geom_bar(stat = 'dentity') + labs(x = 'Features', y = 'Variable Importance') +
+	geom_test(aes(label = roud(importance, 2)), vjust = 1.6, color = 'white', size = 4) +
+	theme(axis.text.x = element_text(angle = -90, hjust = 0))
+
+-------------------
+FEATURE ENGINEERING
+-------------------
+#ESCALAMIENTO Y ESTANDARIZACION
+lograr que las variables sean comparables si estan en distintas escalas
+transformar variables a intervalos (0,1)
+{x} = x - x_min / (x_max - x_min) <- escalamiento
+{x} = x - mu / sigma <- mu es el promedio y sigma la desv estandar, estandarizacion
+library(preProcess)
+example_set <- exoplanetas %>% select(variable1, variable2)	<- ejemplo de estandarizacion
+preprocess_data <- preProcess(example_set, method = c('center, 'scale')	<- centrar y escalar
+process_data <- predict(preprocess_data, example_set)	<- generando la estandarizacion
+example_set_std <- example_set
+example_set_std$variable2_std <- process_data$variable2
+summary(example_set_std)
+sd(example_set_std$variable2_std)
+
+#ONE-HOT ENCODING
+modelos de machine learning que admiten variables categoricas pero solo como dummy
+example_set <- example_set %>% mutate(variable1 = as.factor(variable1))
+dummys <- dummyVars(' ~ .', data = example_set)
+new_example_set <- data.frame(predict(dummys, newdata = example_set))
+
+#EXTRACTING DATES
+en general, las fechas no aportan informacion a menos que generen alguna tendencia
+df %>% mutate(Year = format(my_date, '%Y'),
+	      Month_Number = as.factor(format(my_date, '%m')),
+	      Weekday = as.factor(weekdays(my_date)),
+	      Hour = as.factor(format(my_date, '%H')),
+	      Minute = as.factor(format(my_date, '%M')),
+	      Week = format(my_date, '%W')),
+	      Quarter = lubridate::quarter(my_date, with_year = T),
+              Is_Weekend = is.weekend(my_date),
+	      Is_Holiday = is.holiday(my_date))

@@ -1,0 +1,1044 @@
+﻿---------------------
+INTRODUCCION A PYTHON
+---------------------
+Quarto: markdown de python
+os: comunicacion con sistema operativo
+NumPy: Numeric Python (manipulacion de arrays)
+Pandas: Panel Data (analisis de datos)
+Scikit-Learn: Machine Learning
+Matplotlib, Seaborn: Graficos
+SciPy: Scientific Python (tiene un modulo de herramientas estadisticas)
+plotly, holoviews, bokeh, altair: graficos interactivos
+pyjanitor: limpieza de datos
+streamlit, dash, shiny (en version alpha): dashboards interactivos
+pingouin: herramientas estadisticas
+statsmodels: modelos estadisticos como GLMs
+sktime: modelos de series de tiempo
+mlxtend, yellowbrick, scikit-plot, feature-engine: herramientas complementarias de ML
+xgboost, catboost, lightgbm: metodos de arbol basados en boosting
+optuna: metodos de busqueda de parametros para optimizar funciones
+h2o: interfaz en python para H2O (framework de ML)
+pycaret: ML a alto nivel
+prince: reduccion de dimencionalidad
+surprice: sistemas de recomendacion
+tensorflow, pytorch: Deep Learning
+
+--------
+NOTEBOOK
+--------
+**palabra** <- negrita
+`funcion`	<- resaltar funcion o palabra
+
+# comentar
+!= distinto
+~ no
+| o
+ctrl + enter <- ejecutar una linea de codigo
+python parte desde el cero
+en una secuencia python no entrega el ultimo valor, sino 1 antes
+list(objeto)	<- para ver sus elementos
+f"{variable}"	<- f string, sirve para añadir una variable como string a una cadena de texto
+
+#DIRECTORIO
+import os
+os.getwd()	<- saber mi directorio
+os.chdir("ruta")	<- cambiar el directorio
+
+#VARIABLES Y LISTAS
+mes = 10
+meses = ['Enero', 'Febrero', 'Marzo']	<- corchetes reemplazan c() para crear listas
+
+#ESTRUCTURAS DE CONTROL
+nota = 3.5
+
+if nota > 5.5:
+    print("Eximido")
+elif nota > 4.0:
+    print("A dar examen")
+else:
+    print("A Salvar el ramo")
+
+colores = ["ROJO", "VERDE", "AZUL"]
+for x in colores:
+	accion
+
+comienza_con_A = [x.startswith('A') for x in colores]	<- listas por comprension
+comienza_con_A
+colores_A = [x for x in colores if x.startswith('A')	<- filtrar solo colores que partan con A
+colores_A
+
+#ITERADORES CLASICOS
+range(i, f, s) <- secuencia de datos desde i hasta f con s saltos
+enumerate(lista) <- entrega tuplas que contienen el par posicion, elemento; parte desde el cero
+for num, mes in enumerate(meses): 	<- destructuracion, sirve para que la lista parta desde el 1
+    print("Mes", num + 1, "es", mes)
+algo = zip(lista1, lista2) <- entrega tuplas que contienen elementos en la misma posicion
+list(algo)
+
+#FUNCIONES
+def fahrenheit_a_celcius(temperatura):
+  calculo = (temperatura - 32) / 1.8	<- con variable auxiliar
+  return calculo
+
+def fahrenheit_a_celcius(temperatura):	<- sin variable auxiliar
+  return = (temperatura - 32) / 1.8
+
+fahrenheit_a_celcius3 = lambda temp: (temp - 32) / 1.8	<- utilizando el operador lambda para escribir toda la funcion en una linea
+
+f = lambda x: 2 * x + 1 if x <= 0 else x ** 2		<- funcion dentro de listas por comprension
+valores = [4, -2, 9, 56, -67]
+print([f(valor) for valor in valores])			<- aplicar a todos los valores
+print([f(valor) if valor > 5 else valor for valor in valores])	<- aplicar solo a los valores mayores a 5, en caso contrario no hacer nada
+
+-----
+NUMPY
+-----
+import numpy as np
+np.nan <- equivalente a un missing value, "not a number"
+np.array(lista) <- se necesitan arrays de numpy para multiplicar listas o hacer cambios, dado que la lista por si misma no es un vector
+es necesario anteponer np.log o np.sqrt para ocupar el log o la raiz cuadrada, dado que estas funciones no son nativas de python
+print(objeto[(condicion_1) & (condicion_2)])
+np.where(condicion, "si", "no")	<- funciona igual que un ifelse
+np.select(					<- funciona igual que el case_when
+	condlist=[condicion_1, condicion_2],
+	choicelist=["algo_1", "algo_2"],
+	default="algo",
+)
+
+#MANIPULACION DE ARRAYS
+print(np.array(lista1 + lista2))	<- se pueden realizar operacones dentro de un array
+lista = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+print(lista[0:2])
+np.random.seed(2022)	<- semillar
+estaturas = np.random.normal(loc = 160, scale = 5, size = 10000) <- crear poblacion normalmente distribuida con media loc y desviacion estandar 5
+
+#MATRICES
+np.random.seed(2022)
+mat = np.random.randint(low=0, high=10, size=(3, 4)) <- matriz cuyo menor valor es 0, maximo valor es 10 y tiene dimension [3,4]
+print("Una matriz:\n", mat)			<- \n sirve para agregar un salto de parrafo
+print("Un elemento:", mat[1, 2])		<- elemento
+print("Una fila:", mat[1, :])			<- fila
+print("Una columna:", mat[:, 1])		<- columna
+print("Un subconjunto:\n", mat[0:2, 1:4])	<- subconjunto
+
+------
+PANDAS
+------
+https://pandas.pydata.org/
+import pandas as pd
+para concatenar se utiliza el simbolo +
+\ <- se usa al final del codigo para continuar en la linea de abajo
+.astype('int')	<- cambiar a numero
+.astype('str')	<- string o cadena de texto
+.astype('float')	<- numero decimal
+str(valor)	<- forma abreviada de transformar a string
+pd.to_datetime(dataframe['variable'])	<- cambia la variable a formato fecha
+random_state = numero <- se usa como opcion para establecer una semilla
+dataframe.describe()	<- entrega los estadisticos basicos para cada variable
+dataframe.describe(datetime_is_numeric = True).T <- entrega los estadisticos incluyendo la fecha, .T sirve para trasponer la tabla
+dataframe['variable_categorica'].isin(['categoria1', 'categoria2'])	<- compruebo si cada observacion contiene una de las categorias
+dataframe['variable_categorica'].value_counts()	<- muestra el numero de observaciones por categoria, normalize = True para mostrar porcentajes
+dataframe['variable_nueva'] = np.where(dataframe['variable'].isna(), 'Yes', 'No'])	<- variable auxiliar para analizar datos faltantes
+dummy = pd.get_dummies(dataframe["variable"])
+df = pd.concat([df, dummy], axis = 1)
+dataframe.groupby('variable_nueva').mean().T
+.agg()	<- es como el summarize, se utiliza luego de un group by
+en la documentacion de pingouin se encuentran todos los test para realizar inferencia estadistica
+diccionario = {'variable1': 'mean', 'variable2': 'count'}	<- diccionario de python
+dataframe.groupby('variable').agg(diccionario)	<- entrega los valores para las variables definidas en el diccionario
+dataframe.groupby('variable_categorica').agg({	<- otra forma de crear un diccionario  
+	'variable1': 'median',
+	'variable2': 'mean',
+	'variable3': 'count'
+})
+.sum(axis = 1)	<- sirve para sumar por filas, no por columnas
+variable.dtypes == 'object'	<- dtypes sirve para indicar el tipo de objeto
+
+!pip install watermark
+%load_ext watermark
+%watermark -n -u -v -iv -w -p numpy,pandas
+np.set_printoptions(supress = True)
+pd.set_option('display.float_format', lambda x: f'{x:0.6f}')	<- configuracion de decimales y notacion cientifica, maximo 6 decimales
+
+#DATAFRAME
+first_dataset = pd.DataFrame(
+	{
+		'Columna1'	: [valor1, valor2, ...],
+		'Columna2'	: [valor1, valor2, ...],
+		...
+	}
+)
+
+#IMPORTAR BASES
+first_import = pd.read_csv("ruta", sep = ";", index_col = ['columna', 'columna_indice'])	<- importar csv
+
+#INDICES
+first_import.index	<- permite acceder al indice que identifica a cada fila
+first_import.set_index('columna', inplace=True)	<- sirve para eliminar los indices, se puede elegir la primera o cualquier columna como referencia
+								   inplace=True sirve para aplicar los cambios a bases de datos
+objeto_indice.sort_index()	<- ordenar los datos segun el indice
+first_import.index.reset_index()	<- eliminar el indice
+
+#EXPORTAR BASES
+dataframe = objeto_dataframe.to_csv("new_data.csv", index=False)	<- exportar a csv sin indice
+dataframe = objeto_dataframe.to_excel("new_data.xlsx", index=False)	<- exportar a excel sin indice
+
+#SELECCION DE VARIABLES Y OBSERVACIONES
+iloc	<- seleccionar filas o columnas mediante su posicion (numeros enteros)
+loc	<- seleccionar filas o columnas mediante indices (etiquetas)
+first_import.loc[:, ['variable1', 'variable2']]	<- todas las filas y solo dos columnas
+first_import.loc[:, first_import.columns != 'variable']	<- todas las filas y todas las columnas menos una
+first_import.drop(['variable1', 'variable2'], aixs='columns')	<- eliminar dos columnas o mas
+first_import.iloc[0:3, :]	<- primeras cuatro filas y todas las columnas
+first_import[['variable1','variable2']][0:10]	<- seleccionar las primeras 10 observaciones de las dos columnas
+
+criterio = first_import['variable'] <= algo
+criterio2 = first_import['variable_categorica'] == 'categoria' 
+first_import[criterio & criterio2]	<- filtrar segun criterios
+first_import.query("condicion_1 & condicion_2")['variable'].mean() <- realiza ambas condiciones a traves de query, y calcula la media de variable
+
+#INSPECCION DE DATOS
+first_import['variable'].unique()	<- para saber todas las categorias de la variable
+first_import['variable'].nunique()	<- para contar valores unicos de la variable
+first_import['variable'].value_counts()	<- para saber la cantidad de observaciones con normalize=True muestra la proporcion
+first_import.sort_values('variable', ascending=True) <- ordenar los datos de la variable en orden ascendente, ascending=False para descendente
+first_import[first_import['variable'] == 'valor'] <- seleccionar por un valor en particular
+
+#OPERACIONES EN DATAFRAMES
+first_import.head(10)	<- observar las primeras 10 observaciones
+first_import.tail(10)	<- observar las ultimas 10 observaciones
+dataframe['variable'][]	<- filtrar
+dataframe['variable'][dataframe['variable'] == 'algo'] = None	<- filtrar una variable y transformarla a missing value 
+first_import['variable_nueva'] = first_import['variable']*10	<- crear variables
+first_import['variable_ratio'] = first_import['variable1'] / first_import['variable2'].max()	<- crear variable ratio
+first_import['variable_ratio_str'] = first_import['variable_ratio'].astype(str)	<- transformar a string
+first_import.info()	<- informacion del dataframe
+first_import.describe()	<- descripcion del dataframe
+first_import.describe(include = ["object"])	<- para pandas las variables string son object
+print(first_import['variable'].mean())			<- media
+print(first_import['variable'].std())			<- desviacion estandar
+print(first_import['variable'].min())			<- minimo
+print(first_import['variable'].quantile(q = 0.25))	<- quantiles
+
+def multiplica_10(value):
+    res = value * 10
+    return res
+
+first_import['variable'].apply(multiplica_10)	<- metodo apply, toma toda una columna y le aplica una funcion
+first_import["rating"].apply(lambda value: value*10 + " palabra")	<- otra forma de hacer lo mismo utilizando lambda
+first_import['variable'].apply(funcion_1).apply(funcion_2)	<- apply se utiliza para aplicar una o mas funciones en columnas
+
+#DATOS FALTANTES Y DUPLICADOS
+dataframe[~dataframe.duplicated()]	<- eliminar duplicados de un dataframe
+dataframe.drop_duplicates(inplace=True)	<- otra forma de eliminar valores duplicados
+dataframe.isna().mean()	<- muestra que datos tienen missing values a traves de su proporcion
+dataframe.isna().sum()	<- muestra los datos faltantes por columna
+msngo.matrix(dataframe)	<- se necesita importa msngo as msngo y muestra una matriz de datos faltantes
+dataframe.dropna()	<- elimina toda la fila donde haya un dato faltante en alguna columna
+
+#GROUP BY, MERGE Y FUNCIONES DE AGREGACION
+data_agrupada = dataframe.groupby('variable_categorica')	<- agrupar por una variable
+data_agrupada.agg('count')	<- se utiliza cuando hay datos agrupados para realizar funciones, este caso realiza el conteo
+dataframe.groupby('variable').agg(['mean'. 'std'])	<- indicar los estadisticos que se quieren calcular
+def nombre(value):
+	if value > algo:
+		res = 'algo'
+	else:
+		res = 'otra cosa'
+	return res
+dataframe['nombre'] = dataframe['variable'].apply(nombre)	<- lo mismo se puede hacer con np.where()
+
+def Q1(data):
+	return np.nanpercentile(data, 25)	<- funcion para crear primer quintil, se utiliza el nan para que no considere missing values
+dataframe.groupby(['variable1','variable2']).agg(['mean','min','max','count', Q1])[['variable3','variable4']]
+
+dataframe3 = pd.merge(dataframe1, dataframe2, on = 'variable)	<- es como un join
+dataframe3 = pd.merge(dataframe1, dataframe2, left_on = 'variable_df1', right_on = 'variable_df2', how = 'inner')	<- tambien hay left, right y otros
+display(dataframe1.join(dataframe2, lsuffix = 'variable', rsuffix = 'variable'))	<- otra forma de juntar bases
+display(pd.concat([dataframe1, dataframe2], axis = 1)) <- unir bases sin llave, axis = 1 une por columnas y axis = 0 une por filas
+display(dataframe3)
+
+#GRAFICOS
+import matplotlib.pyplot as plt
+import seaborn as sns
+%config InlineBackend.figure_format = "svg"	<- herramienta para aumentar la calidad de los graficos
+plt.style.available	<- muestra todos los temas disponibles
+plt.style.use('cualquier_tema')	<- para dejar seteado un tema en aprticular
+plt.rcParams['figure.figsize' = [numero_largo, numero_ancho]	<- configuracion global para cambiar el tamaño de los graficos a nivel global
+sns.set_theme(style = "darkgrid")	<- permite cambiar el color del grafico
+en matplotlib, el color siempre debe ser una variable numerica
+
+	1. Grafico con pyplot
+fix, ax = plt.subplots(figsize = (numero_largo, numero_ancho))
+ax.plot(dataframe.index, dataframe['variable_y'])	<- no es necesario el indice si ya fue especificado, en este caso va en el eje x
+									otras opciones: marker = 'o', linestyle = '--', color = 'red'
+ax.set_xlabel('algo')
+ax.set_ylabel('algo')
+ax.set_title('algo')
+plt.show()	<- un atajo a esta linea es ; al final
+
+	2. Grafico con seaborn
+fig, ax = plt.subplots()	<- otra forma de hacer graficos utilizando seaborn
+sns.lineplot(x = 'algo', y = 'algo', data = dataframe, ax = ax)	<- tambien puede ser scatterplot, barplot, etc	
+ax.set_xlabel('algo')
+ax.set_ylabel('algo')
+ax.set_title('algo)
+plt.show()
+
+	3. Colocar dos graficos con pyplot
+fig, ax = plt.subplots(nrows = 2, nrows = 1)	<- sirve para colocar mas de un grafico, significa dos filas y una columna
+ax[0].plot(dataframe['variable1'], color = 'red')	<- dado que ax ahora tiene 2 elementos, este hace referencia al primer grafico
+ax[1].plot(dataframe['variable2'], color = 'blue')	<- hace referencia al segundo grafico
+plt.show()
+
+	4. Colocar dos graficos con seaborn
+fig, ax = plt.subplots(nrows = 2, ncols = 1)	
+sns.lineplot(x = 'algo', y = 'algo', data = dataframe, ax = ax[0])	
+ax[0].set_xlabel('algo')
+ax[0].set_ylabel('algo')
+ax.set_title('algo)
+sns.lineplot(x = 'algo', y = 'algo', data = dataframe, color = 'blue', ax = ax[1])
+ax[1].set_ylabel('algo')
+plt.show()
+
+	5 . Colocar dos ejes y en el mismo grafico
+fig, ax = plt.subplots()	
+ax.plot(dataframe['variable'], color = 'red')	
+ax.set_xlabel('algo')
+ax.set_ylabel('algo')
+ax.set_title('algo)
+ax2 = ax.twinx()	<- esta funcion sirve para agregar un segundo eje y al mismo grafico
+ax2.plot(dataframe['variable']*2, color = 'blue')
+ax2.set_ylabel('algo2')
+plt.show()
+
+	6. Graficos de barra
+fig, ax = plt.subplots()
+data_bar = dataframe.groupby('variable_categorica').agg('count')['variable']
+ax.bar(data_bar.index, data_bar)	<- se debe señalar el indice en el eje x o usar ax.barh(data_bar.index, data_bar) para cambiarlo al eje y
+ax.set_xlabel('algo')
+ax.set_ylabel('algo')
+plt.show()
+
+	Otra forma con .plot de pandas:
+dataframe['variable_categorica'].value_counts().plot(kind = 'bar')	<- usar barh para barras horizontales
+
+	Otra forma con seaborn:
+sns.countplot(x = 'variable_categorica', data = dataframe, order = ['variable1', 'variable2', ...]);	<- usar y = 'variable_categorica' para horizontal
+tambien se puede agregar una lista de colores en orden para cada variable con palette = ['red', 'blue', ...]
+
+	7. Histograma
+fig, ax = plt.subplots()
+ax.hist(dataframe['variable'], bins = 15)
+ax.set_xlabel('algo')
+ax.set_ylabel('algo')
+plt.show()
+
+	Otra forma con seaborn:
+sns.histplot(data = dataframe, x = 'variable', bins = 15, kde = True); 	<- kde es la linea del grafico, kernel density estimation (suavizamiento)
+
+	8. Colocar dos histogramas con pyplot
+dataframe['variable2'] = dataframe['variable']*10/dataframe['variable'].max()+5
+fig, ax = plt.subplots()
+ax.hist(dataframe['variable'],bins = 15, density = True, color = 'red',alpha = 0.5, label = 'algo 1')
+ax.hist(dataframe['variable2'], bins = 15, density = True, color = 'green', alpha = 0.5, label = 'algo 2')
+ax.legend(loc = 'upper right')	<- colocar leyenda en la parte superior derecha
+plt.show()
+
+	Otra forma con seaborn:
+sns.histplot(data = dataframe, x = "variable", hue = "variable_categorica");	<- hue sirve para colorear 
+
+	9. Stacked bars
+fig, ax = plt.subplots()
+ax.bar(df.index, df['categoria1'], label='categoria1', color='#b5ffb9', edgecolor='white', width=0.85)
+ax.bar(df.index, df['categoria2'], bottom=df['categoria1'], color='#f9bc86', label='categoria2', edgecolor='white', width=0.85)
+ax.bar(df.index, df['categoria3'], bottom=df['categoria1'] + df['categoria2'], color='#a3acff', edgecolor='white', width=0.85, label='categoria3')
+ax.bar(df.index, df['categoria4'], bottom=df['categoria1'] + df['categoria2'] + df['categoria3'], color='pink', edgecolor='white', width=0.85, label='categoria4')
+ax.set_xlabel('algo')
+ax.set_ylabel('algo')
+ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+plt.show()
+	
+	Otra forma con seaborn:
+ax = df.reset_index().plot(x = 'index', kind='bar', stacked = True)	<- si elimino stacked = True ya no queda un grafico apilado
+ax.set_xlabel("algo")
+ax.set_ylabel("algo")
+ax.set_yticks(range(0, 101, 10)	<- elegir los saltos del eje y
+ax.set_yticklabels([f"{num}%" for num in range(0, 101, 10)])	<- para agregar porcentajes en el eje y
+plt.legend(bbox_to_anchor = (1.0, 1.0))	<- posicion de la leyenda
+plt.show()
+
+	10. Grafico de dispersion
+fig, ax = plt.subplots()
+ax.scatter(dataframe['variable'], dataframe['variable2'], marker = '*')
+ax.set_xscale('log')
+ax.set_xlabel('algo')
+ax.set_ylabel('algo')
+plt.show()
+	
+	Otra forma con seaborn:
+sns.scatterplot(
+	data = dataframe,
+	x = "variable",
+	y = "variable", 
+	hue = "variable_categorica");	<- para que muestre la leyenda
+
+------------
+SCIKIT-LEARN
+------------
+contiene todas las funcionalidades que existen desde el procesamiento de datos hasta la visualizacion de modelos
+https://orangedatamining.com/
+https://scikit-learn.org/stable/
+
+#FLUJOS DE ML, SVM & NB
+from sklearn.model_selection import train_test_split
+X = df[['x1', 'x2', 'x3']]	<- predictores
+y = df['y']			<- variable respuesta, se deben dejar en objetos distintos
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, random_state = 2022)	<- base de testeo 30% y entrenamiento 70%
+en datos de series de tiempo es necesario agregar shuffle=False a la funcion para mantener orden de datos
+
+	1. Regresion lineal
+from sklearn.linear_model import LinearRegression
+modelo = LinearRegression()
+modelo.fit(X_train, y_train)	<- usar .fit permite dejar los cambios establecidos en la bse de datos (es como el inplace de pandas)
+print('R^2:', modelo.score(X_test, y_test))	<- metricas del modelo
+predicciones = modelo.predict(X_test)	<- generamos las predicciones
+
+	2. Arbol de decision
+from sklearn.tree import DecisionTreeRegressor
+modelo = DecisionTreeRegressor()
+modelo.fit(X_train, y_train)
+print('R^2:', modelo.score(X_test, y_test))	<- metricas del modelo
+predicciones = modelo.predict(X_test)
+
+#FEATURE ENGINEERING
+consiste en transformar la data para utilizarla en modelos
+
+	1. Normalizacion (x = (x - x_min) / (x_max - x_min)): consiste en transformar los valores de una columna al rango [0, 1]
+x = np.random.gamma(shape = 2, scale = 10, size = (1000, 1))	<- datos originales
+from sklearn.preprocessing import MinMaxScaler
+norm = MinMaxScaler()
+norm.fit(x)
+x_norm = norm.transform(x)
+
+	2. Estandarizacion (x = (x - mu) / sigma): transformar los valores para que esten centrados y concentrados en cero, con media 0 y varianza 1
+from sklearn.preprocessing import StandardScaler
+stand = StandardScaler()
+stand.fit(x)
+x_stand = stand.transform(x)
+
+fig, ax = plt.subplot(ncols = 3, figsize = (15, 4))
+sns.histplot(x = ax=ax[0], kde = True)	<- datos originales
+ax[0].set_title('Data orginal')
+sns.histplot(x_norm, ax=ax[1], kde= True)	<- datos normalizados
+ax[1].set_tittle(Data normalizada')
+sns.histplot(x_stand, ax=ax[2], kde= True)	<- datos estandarizados
+ax[2].set_title('Data estandarizada')
+
+	3. One hot encoding o variables dummy
+from sklearn.preprocessing import OneHotEncoder
+ohe = OneHotEncoder(sparse = False, drop = 'first') <- sparse sirve para ver como matriz y no como dato eficiente, drop elimina una categoria
+ohe.fit(dataframe)
+dataframe_one_hot = ohe.transform(dataframe)
+pd.DataFrame(dataframe_one_hot, columns = ohe.get_feature_names_out())
+
+#TEST DE NORMALIDAD
+!conda install -c conda-forge pingouin
+import pingouin as pg
+pg.normality(dataframe[:, 1])	<- en este caso quiero aplicar el test de normalidad a la primera columna de mi dataframe
+
+#NAIVE BAYES
+from sklearn.naive_bayes import GaussianNB, MultinomialNB <- GaussianNB se usa para predictores numericos y Multinomial para categoricos
+modelo_nb = GaussianNB()	<- Naive Bayes requiere que los datos se distribuyan de formal normal
+
+#MATRIZ DE CONFUSION
+from sklearn.metrics import ConfusionMatrixDisplay
+resultados = pd.DataFrame({'Observado': y_test, 'Prediccion': y_pred})
+print('Tabla:')
+tabla = pd.crosstab(resultados['Observado'], resultados['Prediccion'])
+display(tabla)
+print('Grafico:')
+ConfusionMatrixDisplay.from_estimator(modelo_nb, X_test, y_test, display_labels = ['No', 'Si']);
+modelo.nb.fit(X_traing, y_train)
+y_pred = modelo_nb.predict(X_test)
+
+	- Accuracy: numero de registros correctamente clasificados sobre el total de datos
+	- Precision: porcentaje de registros correctamente clasificados dentro de una clase (se ve por filas)
+	- Recall (deteccion): porcentaje de registros de una clase que fueron detectados por el modelo (se ve por columnas, ejemplo casos pcr)
+	- F1: media armonica entre precision y deteccion, util para datos desbalanceados ya que penaliza valores muy bajos
+
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+print('Accuracy:', accuracy_score(y_test, y_pred))
+print('Precision:', precision_score(y_test, y_pred))
+print('Recall:', recall_score(y_test, y_pred))
+print('F1:', f1_score(y_test, y_pred))
+
+from sklearn.metrics import classification_report	<- otra forma de obtener todas las metricas de forma mas facil
+print(classification_report(y_Test, y_pred, target_names = ['No', 'Si']))
+si los datos estan desbalanceados debo observar el macro avg
+si los datos no estan desbalanceados debo observar el weighted avg
+
+#RECEIVING OPERATING CHARACTERISTICS (CURVA ROC)
+from sklearn.metrics import RocCruveDisplay	<- permite ver una tasa entre falsos positivos y verdaderos positivos
+RocCurveDisplay.from_estimator(modelo_nb, X_test, y_test)
+plt.plot([0, 1], ls = '--');
+
+from sklearn.metrics import roc_auc_score
+print('Area bajo la curva:', roc_auc_score(y_test, y_pred))
+
+----------------------
+DIAGNOSTICANDO MODELOS
+----------------------
+set de entrenamiento y set de prueba para que el modelo aprenda y no memorice
+
+#CROSS VALIDATION O VALIDACION CRUZADA
+consiste en repetir el proceso de entrenamiento varias veces para analizar como muestra
+trade-off entre explotacion y exploracion
+from sklearn.svm import SVC	<- support vector classifier
+from mlxtend.plotting import plot_decision_regions
+modelo = SVC(kernel = 'poly')
+modelo.fit(X_train, y_train)
+plot_decision_regions(X_test, y_test, modelo)
+
+y_pred = modelo.predict(X_test)
+print(classification_report(y_test, y_pred, digits = 3))
+
+from sklearn.model_selection import KFold, cross_val_score
+configuraciones = KFold(n_splits = 10, shuffle = True, random_state = 2022)	<- n_splits: numero de particiones, shuffle: datos desordenados
+resultados = cross_val_score(
+	estimator = modelo,
+	X = X_train,
+	y = y_train,
+	cv = configuraciones,
+	scoring = 'accuracy'
+)
+print('Accuracy en cada grupo:', resultados)
+print('Accuracy en validacion cruzada:', resultados.mean())	<- esta metrica deberia ser mas robusta para el set de entrenamiento 
+
+from sklearn.model_selection import KFold, cross_val_score, GridSearchCV
+hiperparametros = {'kernel': ['rbf, 'linear', 'poly']}
+configuraciones = KFold(n_splits = 10, shuffle = True, random_state = 2022)
+mejor_modelo = modelos.best_estimator_.fit(X_train, y_train)
+plot_decision_regions(X_test, y_test, mejor_modelo)
+modelo = SVC(random_state = 2022)
+modelos = GridSearchCV(
+	estimator = modelo,			<- modelos a optimizar
+	param_grid = hiperparametros,		<- parametros donde buscar
+	cv = configuraciones,			<- configuraciones validacion cruzada
+	scoring = 'accuracy',			<- optimizar el accuracy
+	n_jobs = -1					<- para usar todos los nucleos
+	verbose = 1					<- para saber cuantos modelos estamos ajustando
+)
+modelos.fit(X_train, y_train)
+tabla_resultados = pd.DataFrame(modelos.cv_results_)[['params', 'mean_test_score', 'rank_test_score']]	<- tabla de resultados
+tabla_Resultados.style.bar('mean_test_score')
+y_pred_train = mejor_modelo.predict(X_train)	<- automaticamente sabe cual es el mejor modelo de los elegidos anteriormente
+y_pred_test = mejor_modelo.predict(X_test)
+print(classification_report(y_test, y_pred))
+
+#UNDERFITTING Y OVERFITTING
+underfitting	<- el modelo no es lo suficientemente complejo, sesgo alto, entrenamiento y prueba no alcanzan un valor deseable
+overfitting		<- aprende caracteristicas muy especificas, varianza alta, gap entre score de entrenamiento (mejor) y prueba (peor)
+en el caso ideal, el se de entrenamiento y prueba convergen a un valor deseable
+
+from mlxtend.evaluate import bias_variance_decomp
+error_medio, sesgo_medio, varianza_media = bias_variance_decomp(
+	estimator = modelo_nb,
+	X_train = X_train,
+	X_test = X_test,
+	y_train = y_train,
+	y_test = y_test,
+	random_seed = 2022
+)
+print('Error medio:', error_medio)	<- el error medio (promedio de los errores muestrales) debe ser alto para evaluar overfitting o underfitting
+print('Sesgo medio:', sesgo_medio)
+print('Varianza media:', varianza_media)
+print('Train accuracy:', accuracy_score(y_train, y_pred_train))	<- aca se puede evaluar overfitting o underfitting, ambas deben converger
+print('Test accuracy:', accuracy_score(y_test, y_pred_test))
+
+--------------------------------
+COLUMNS TRANSFORMERS & PIPELINES
+--------------------------------
+#COLUMN TRANSFORMERS
+variables_categoricas = X_train.columns[X_train.dtypes == 'object'].to_list()
+variables_numericas = X_train.columns[X_train.dtypes != 'object'].to_list()
+from sklearn.compose import make_column_transformer
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+one_hot = OneHotEncoder(drop = 'first', sparse = False)	<- isntanciar las clases
+scaler = StandardScaler()				<- instanciar las clases
+transformer = make_column_transformer(
+	(one_hot, variables_categoricas),		<- indico en tuplas que las variables categoricas pasen a dummy
+	(scaler, variables_numericas),			<- variables numericas se escalan
+	remainder = 'passthrough',			<- en caso que existan mas variables que no he indicado, que no se les aplique nada
+	verbose_feature_names_out = False		<- para no agregarle nombre a las variables
+)
+transformer.fit(X_train)
+X_train_prep = pd.DataFrame(transformer.transform(X_train), columns = transformer.get_feature_names_out())	<- que entregue los resultados
+X_test_prep = pd.DataFrame(transformer.transform(X_test), columns = transformer.get_feature_names_out())
+print('Set de entrenamiento preprocesado:')
+display(X_train_prep.head())
+print('Set de testeo preprocesado:')
+display(X_test_prep.head())
+
+from sklearn.linear_model import LinearRegression
+regressor = LinearRregression()
+regressor.fit(X_train_prep, y_train)
+print('R^2:', regressor.score(X_test_pre, y_test))
+
+#PIPELINES
+Etapas:
+	imputacion de datos faltantes
+	estandarizacion o normalizacion
+	codificacion de dummies
+	reduccion de dimensionalidad
+	modelamiento 
+
+pipelines permite aplicar transformaciones secuenciales y ajusta un modelo final de forma automatica
+from sklearn.pipeline import make_pipeline
+pipeline = make_pipeline(
+	transformer,	<- primera etapa, preprocesamiento segun tipo de variable
+	regressor	<- segunda etapa: modelamiento
+)
+pipeline.fit(X_train, y_train)
+print('R^2:', regressor.score(X_test_pre, y_test))
+
+#EJEMPLO DE PIPELINE PARA DATOS FALTANTES
+import sklearn
+sklearn.set_config(display = 'diagram')	<- para mostrar un diagrama al final del codigo
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer, SimpleImputer
+from sklearn.preprocessing import PolynomialFeatures
+from sklearin.decomposition import PCA
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.svm import SVR
+numeric_imputer = IterativeImputer(DecisionTreeRegressor(random_state = 2022))	<- imputar datos faltantes para datos numericos a traves de arboles
+categorical_imputer = SimpleImputer(strategy = 'most_frequent')	<- imputar datos faltantes categoricos a traves de la clase mas comun
+dimension_reduction = PCA(n_components = 1)
+poly_vars = PolynomialFeatures()	<- agrega las mismas variables elevadas a alguna potencia (polinomios), util para regresion lineal y logistica
+numeric_prep = make_pipeline(
+	numeric_imputer,	<- etapa 1, imputar datos faltantes
+	scaler,			<- etapa 2, estandarizar datos
+	dimension_reduction	<- etapa 3, reduccion de dimensionalidad
+)
+categorical_prep = make_pipeline(
+	categorical_imputer,	<- etapa 1, imputar datos faltantes
+	one_hot			<- etapa 2, variables dummy
+)
+transformer = make_column_transformer(		<- en el transformer unimos ambos preprocesamientos
+	(numeric_prep, variables_numericas),
+	remainder = 'passthrough',
+	verbose_feature_names_out = False
+)
+model = SVR()	<- definimos el modelo final, support vector regression
+pipeline = make_pipeline(
+	transformer,	<- etapa 1, preprocesamiento segun tipo de variable
+	poly_vars,	<- etapa 2, crear variables polinomicas con variables resultantes
+	model		<- etapa 3, modelamiento con support vector machine
+)
+pipeline.fit(X_train, y_train)
+
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+y_pred = pipeline.predict(X_test)
+print('Resultados:')
+print('R^2:', pipeline.score(X_test_pre, y_test))
+print('RMSE:', mean_squared_error(y_test, y_pred, squared = False))
+print('MAE:', mean_absolute_error(y_test, y_pred))
+pd.DataFrame(pipeline[:-1].transform(X_train), columns = pipeline[:-1].get_feature_names_out())	<- para observar el dataframe antes del modelo
+
+--------------
+DECISION TREES
+--------------
+se pueden utilizar para problemas de clasificacion (DecisionTreeClassifier), regresion (DecisionTreeRegressor) u otros
+no requiere escalar las variables
+estimador de alta varianza (weak learner)
+alta interpretabilidad, modelo no parametrico (no estamos estimando parametros, de modo que no es posible hacer inferencia)
+forman la base del algoritmo Random Forest
+si el arbol es muy profundo (deep tree), tendra muchos nodos (muy especifico) y entregara poca informacion, de modo que buscamos generalizar
+utilizando hiperparametros y obtener regiones mas globales
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, random_state = 2022)	<- separamos los datos en set de entrenamiento y testeo
+from sklearn.tree import DecisionTreeClassifier	<- dado que el problema es de clasificacion, por lo tanto siempre buscamos el accuracy
+dec_tree = DecisionTreeClassifier(random_state = 2022, criterion = 'entropy')	<- criterio de entropia para realizar el arbol
+dec_tree.fit(X_train, y_train)
+
+from mlxtend.plotting import plot_decision_regions
+from sklearn.tree import plot_tree
+print('Accuracy:', dec_tree.score(X_test, y_test))
+fig, ax = plt.subplots(ncols = 2, figsize = (20, 8))
+plot_decision_regions(X_train, y_train, dec_tree, ax=ax[0])
+plot_tree(dec_tree, feature_names = ['Var1', 'Var2'], filled = True, ax=ax[1]);
+
+#AJUSTAR ARBOLES DE DECISION
+se utilizan hiperparametros para ajustar el arbol y estos se obtienen a traves de la validacion cruzada
+max_depth 	<- para ajustar la profundidad del arbol (cantidad de nodos o niveles)
+ccp_alpha	<- penaliza segun cantidad de nodos terminales (favorece arboles con pocos nodos terminales)
+
+from sklearn.model_selection import GridSearchCV, KFold
+hiperparametros = {'ccp_alpha': np.logscape(-4, 1, 15)}	<- elijo una grilla de valores pequeños (15) entre 10^-4 y 10^1 en escala logaritmica 
+configuraciones = KFold(n_splits = 10, shuffle = True, random_state = 2022)
+modelo = DecisionTreeClasiffier(max_depth = 30, criterion = 'entropy', random_state = 2022)
+modelos = GridSearchCV(
+	estimator = modelo,
+	param_grid = hiperparametros,
+	cv = configuraciones,
+	scoring = 'accuracy',
+	n_jobs = -1,
+	verbose = 1
+)
+modelos.fit(X_train, y_train)
+tabla_resultados = pd.DataFrame(modelos.cv_results_)[['param_ccp_alpha', 'mean_test_score']]
+tabla_Resultados.sort_values('mean_test_score', ascending = False).style.bar('mean_test_score')	<- se elige el ccp_alpha que maximiza el accuracy
+best_tree = modelos.best_estimator_.fit(X_train, y_train)
+print('Accuracy:', best_tree.score(X_test, y_test))
+fig, ax = plt.subplots(ncols = 2, figsize = (20, 8))		<- repetimos el grafico pero ahora con menos secciones y mas generalizado
+plot_decision_regions(X_train, y_train, best_tree, ax=ax[0])
+plot_tree(
+	decision_tree = best_tree,
+	proportion = True,
+	feature_names = ['Var1', 'Var2'],
+	filles = True,
+	ax = ax[1]
+);
+
+-------------
+RANDOM FOREST
+-------------
+el estimador de arbol de decision tiende a tener alta varianza (predicciones correctas pero lejos del valor estimado)
+parametro c <- ajustar penalizacion
+parametro kernel <- ajustar kernel
+solucionar varianza: se utiliza un bootstrap, que consiste en crear distintas muestras con las mismas obs y en cada una
+se ajusta un arbol de decision que es weak lerner (estimador debil). Luego, en random forest se hacen predicciones con
+muchos weak learners de arboles entrenados por separado y este estimador es mucho mas robusto
+en random forest la separacion de clasificaciones ya no es lineal como en decision tree, se adapta mejor a los datos
+
+from sklearn.model_selection import GridSearchCV, KFold
+
+hiperparametros = {
+    "n_estimators": np.arange(10, 151, 15),	# cantidad de arboles a entrenar
+    "ccp_alpha"   : np.logspace(-4, 0.5, 10)	# penaliza muchos nodos terminales
+								# max_depth permite elegir la profundidad maxima del arbol
+}
+configuraciones = KFold(n_splits=5, shuffle=True, random_state=2022)
+modelo          = RandomForestClassifier(max_depth=30, criterion="entropy", random_state=2022)
+
+modelos = GridSearchCV(
+    estimator  = modelo,          
+    param_grid = hiperparametros, 
+    cv         = configuraciones, 
+    scoring    = "accuracy",      
+    n_jobs     = -1,              
+    verbose    = 1                
+)
+modelos.fit(X_train, y_train)
+
+print("Mejores hiperparámetros:", modelos.best_params_)
+best_rf = modelos.best_estimator_.fit(X_train, y_train)
+
+print("Accuracy:", best_rf.score(X_test, y_test))
+plot_decision_regions(X_train, y_train, best_rf);
+
+random forest permite ver la importancia de cada variable a traves de la suma de entropia
+entropia baja <- esa variable produce secciones mas puras respecto al resto, y es mas importante
+entropia alta <- no se debe usar esa variable
+random forest selecciona variables a traves de la entropia
+PCA selecciona variables a traves de la varianza y variabilidad de los datos (reduce la cantidad de componentes y no usa variable respuesta)
+	usualmente, luego del PCA se puede utilizar regresion lineal, logistica, SVM
+con random forest puedo saber las variables mas importantes y luego hacer una regresion logistica para poder hacer inferencia
+
+pd.DataFrame(
+    data    = zip(["Var1", "Var2"], best_rf.feature_importances_),
+    columns = ["Variable", "Importancia Relativa"]
+)\
+    .sort_values("Importancia Relativa", ascending=False)\
+    .style.bar()
+
+bajo supuesto ceteris paribus, puedo ver la dependencia parcial de cada variable
+from sklearn.inspection import PartialDependenceDisplay
+PartialDependenceDisplay.from_estimator(
+	best_rf,
+	X_train,
+	features=[0, 1],	# porque tiene solo dos variables
+	target=variable_target,		# variable sobre la cual influye la prediccion
+	kind = "individual"
+);
+los graficos muestra que valores negativos o positivos de nuestra variable generan predicciones a favor (con mayor prob) de la variable target
+
+-------------
+BOOSTED TREES
+-------------
+metodo de gradient bosting
+algoritmo recursivo que entrena un unico arbol y crea modelos secuenciales a partir de sus errores
+aqui tambien se puede observar la importancia relativa de cada variable
+optuna: libreria que permite detectar hiperparametros de forma inteligente
+		selecciona los parametros que tienen mas relevancia, y comienza a buscar a partir de ahi
+
+from sklearn.model_selection import GridSearchCV, KFold
+
+hiperparametros = {
+    "n_estimators" : np.arange(10, 101, 20),	# cantidad de arboles secuenciales a realizar
+    "gamma"        : np.logspace(-1, 1, 4),	# penalizacion por tener arboles profundos con poca informacion
+    "learning_rate": np.linspace(0.1, 1.5, 7)	# tasa de aprendizaje alta implica rapidez pero inestabilidad
+								# tasas bajas tienen aprendizaje mas lento pero con resultados mas seguros
+}
+configuraciones = KFold(n_splits=3, shuffle=True, random_state=2022)
+modelo          = xg.XGBClassifier(
+    max_depth         = 10,
+    eval_metric       = "mlogloss",
+    use_label_encoder = False,
+    random_state      = 2022,
+    verbosity         = 0
+)
+
+modelos = GridSearchCV(
+    estimator  = modelo,          
+    param_grid = hiperparametros, 
+    cv         = configuraciones, 
+    scoring    = "accuracy",      
+    n_jobs     = -1,              
+    verbose    = 1                
+)
+modelos.fit(X_train, y_train)
+
+print("Mejores hiperparámetros:", modelos.best_params_)
+best_gb = modelos.best_estimator_.fit(X_train, y_train)
+
+print("Accuracy:", best_gb.score(X_test, y_test))
+plot_decision_regions(X_train, y_train, best_gb);
+
+pd.DataFrame(	#importancia realativa de cada variable
+    data    = zip(["Var1", "Var2"], best_gb.feature_importances_),
+    columns = ["Variable", "Importancia Relativa"]
+)\
+    .sort_values("Importancia Relativa", ascending=False)\
+    .style.bar()
+
+-----------------------------------
+MODELOS NO SUPERVISADOS: CLUSTERING
+-----------------------------------
+- K-mean 		<- para datos numericos (media)
+- K-modes 		<- para datos categoricos (moda)
+- K-prototypes 	<- mezcla entre datos numericos y categoricos
+
+-------
+K-MEANS
+-------
+algoritmo que usa centros (K) y distancia entre las observaciones para agrupar segun a que centro esta mas cerca
+siempre se deben estandarizar las variables
+
+from sklearn.cluster import KMeans
+
+kmeans_model = KMeans(n_clusters=2, random_state=2022)	# cluster se refiere a los centroides
+kmeans_model.fit(X)							# aprendo centroides
+y_label = kmeans_model.labels_					# a que grupo se fue cada observacion
+
+sns.scatterplot(x=X[:, 0], y=X[:, 1], hue=y_label);
+
+grafico elbow (de codo) <- ayuda a encontrar el numero de clusters
+	busca la minima distancia al cuadrado entre una obs y su centroide
+
+import warnings
+warnings.filterwarnings("ignore")
+
+from yellowbrick.cluster import KElbowVisualizer
+kmeans_model = KElbowVisualizer(
+    estimator = KMeans(random_state=2022),
+    k         = (1, 10),	# clusters a probar
+    timings   = False		# que no muestre cuanto se demora en calcularlo
+)
+kmeans_model.fit(X)
+
+kmeans_model.show();
+
+-------
+K-MODES
+-------
+esta hecho para datos categoricos
+usa una medida de disimilitud en vez de distancia
+
+categorizar variables como la edad:
+df['var'] = pd.cut(
+    x              = df['var'],
+    bins           = [0, 20, 30, 40, 50, 60, 70, 80, 90, 100],	# inervalos
+    right          = False							# parentesis de la derecha abierta
+)
+df.drop(columns="age", inplace=True)
+df.head()
+
+#modelo
+kmodes_model = KModes(n_clusters=2, random_state=2022)	# partimos suponiendo que hay 2 clusters
+kmodes_model.fit(bank_clust)
+
+print("Centroides:")
+pd.DataFrame(
+    data    = kmodes_model.cluster_centroids_,
+    columns = df.columns
+)
+
+#para encontrar los clusters en k-modes
+from tqdm import tqdm
+
+clusters_a_probar = list(range(1, 11))
+valores = []
+
+for i in tqdm(clusters_a_probar):
+    kmodes_model = KModes(n_clusters=i, random_state=2022)
+    kmodes_model.fit(bank_clust)
+    valores.append(kmodes_model.cost_)
+
+fig, ax = plt.subplots()
+ax.plot(clusters_a_probar, valores, marker="o")
+ax.set_xlabel("Clusters")
+ax.set_ylabel("Costo");
+
+kmodes_model = KModes(n_clusters=4, random_state=2022)
+kmodes_model.fit(bank_clust)
+
+print("Centroides:")
+pd.DataFrame(
+    data    = kmodes_model.cluster_centroids_,
+    columns = df.columns
+)
+
+#crea una nueva variable indicando el cluster asignado
+df['clusters'] = kmodes_model.predict(bank_clust)
+df.head(5)
+
+#luego podemos ver su distribucion a nivel de alguna variable (en este caso, educacion)
+print("Cluster 1:")
+print(df.query("clusters == 1")['education'].value_counts(normalize=True))
+print("\nCluster 2:")
+print(df.query("clusters == 2")['education'].value_counts(normalize=True))
+
+from sklearn.preprocessing import KBinsDiscretizer <- permite usar
+	k-means sobre una variable numerica para generar categorias y luego usar k-modes
+
+#K-PROTOTYPES
+usa una "penalizacion" para que las variables numericas se equiparen a las categoricas
+siempre debo estandarizar las variables numericas
+
+from kmodes.kprototypes import KPrototypes
+from sklearn.pipeline import make_pipeline
+
+kproto = KPrototypes(n_clusters=5, random_state=2022, n_jobs=-1)
+
+pipeline = make_pipeline(transformer, kproto)
+print("Pasos del pipeline:", pipeline.named_steps.keys()) # sirve para ver los pasos del pipeline
+# primero ajustamos el pipeline y luego predecimos usando los mismos datos
+df["cluster"] = pipeline.fit_predict(df, kprototypes__categorical=[4]) # debo indicar cuales son las var categoricas
+print("Primeras observaciones:")
+df.head()
+
+# como encontrar el numero de centroides:
+costos = []
+for i in tqdm(clusters_a_probar):
+    kproto = KPrototypes(n_clusters=i, random_state=2022)
+    pipeline = make_pipeline(transformer, kproto)
+    pipeline.fit(df, kprototypes__categorical=[4])
+    costos.append(pipeline["kprototypes"].cost_)
+    
+fig, ax = plt.subplots()
+ax.plot(clusters_a_probar, costos, marker="o")
+ax.set_xlabel("Clusters")
+ax.set_ylabel("Costo");
+
+----------------------------
+REDUCCION DE DIMENSIONALIDAD
+----------------------------
+maldicion de la dimensionalidad (curse of dimensionality):
+	requiere mas datos para ser entrenado
+	los datasets requieren mas espacio en memoria
+	el entrenamiento se vuelve mas lento
+	mucha correlacion (modelos robustos tienen features independientes)
+feature selecion: eliminar ciertas features (analisis de correlacion, eliminacion recursiva de features (FE), backward, etc)
+feature extraction: creacion de variables sinteticas que reflejen el compotamiento de los datos
+			(analisis de componentes principales PCA) y analisis factorial (FA)
+
+-----------------------
+COMPONENTES PRINCIPALES
+-----------------------
+componentes principales: vectores proprios de una matriz de covarianza
+si multiplico mis datos por los componentes principales, consigo una matriz de datos de dimension menor
+los componentes son basicamente ponderadores, ortogonales, independientes y con correlacion cero
+los componentes explican la variabildiad de los datos
+PCA se usa como etapa de preprocesamiento de modelos supervisados
+
+MAR: error medio absoluto (mean absolute error)
+	indica el "margen de error de prediccion"
+	si mi prediccion es 10, y mi mae es 2, entonces mi margen de prediccion esta entre 8 y 12
+	la desventaja es que es absoluto y mas lento de calcular que el error cuadratico medio
+
+------------------
+ANALISIS FACTORIAL
+------------------
+no busca crear componentes que maximicen la varianza explicada, sino que crea un conjunto de variables menor
+que el original que exprese lo que es comuna las variables originales
+	ej. si tengo 10 variables que me hablan de cierta caracteristica en particular, con esto creo 1 que explique esas 10
+
+Test de Barlett (esfericidad): H0: la matriz de correlaciones entre las variables es una matriz identidad
+	<- no queremos que sea matriz identidad, puesto que necesitamos correlacion entre las variables
+Puntaje KMO <- sirve para medir correlaciones parciales
+		 se sugiere un puntaje de 0.7 para seguir utilizando analisis factorial
+factor con valor propio = 1 <- ese factor explica una parte de la varianza igual a la de una variable
+			necesitamos factores con valores proprios mayores a 1 para explicar la mayor cantidad de varianza
+
+----------------------
+DETECCION DE ANOMALIAS
+----------------------
+modelo no supervisado ya que a priori no sabemos que datos son anomalos
+se puede hacer a traves de:
+	- Analisis de Componentes Principales por fila (no por atributos/columnas)
+	- Isolation Forest: se conforma por isolation trees donde cada uno es encargado de detectar un patron anomalo
+	- Local Outlier Factor (LOF)
+	- One-Class SVM
+	- Elliptic Envelope
+	- modelos lineales insensibles a anomalias (robustos):
+		- Huber
+		- RANSAC
+		- Theil Sen
+- PCA:
+proyectamos la base original a traves de sus componentes principales, y luego volvemos a reconstruir utilizandolos
+	dado que tenemos menos varianza explicada respecto a la original, podemos ver que datos son anomalos pues explican menor variabilidad con un puntaje
+necesita datos estandarizados
+solo recibe variables numericas, debemos descartar las categoricas
+designamos un puntaje de anomalia de acuerdo a la matriz de confusion
+
+- Isolation Forest:
+	n_estimators: nro de estimadores base para cada ensamblaje
+	contamination: porcentaje esperado de anomalias en el set
+	max_features: nro de features para cada estimador base
+el argumento decision_function entrega el puntaje de anomalia, mientras mas bajo el puntaje, mayor la anomalia
+tambien debemos observar la matriz de confusion
+en este metodo se pueden agregar variables categoricas (dummificadas)
+
+- Extended Isolation Forest:
+similar a isolation forest pero en lugar de utilizar lineas horizontales y verticales para clasificar datos, lo hace a traves de vectores con pendiente
+ExtensionLevel <- manipula el sesgo heredado de arboles de decision, pero no tiene mayor interpretacion
+		  si las variables tienen comportamiento parecido (ya que estan estandarizadas) se usa valor 1 de forma habitual
+solo acepta arrays
+df.values <- transforma la data a un array
+tambien debemos observar la matriz de confusion (notar la cantidad de falsos positivos)
+
+-------------------------
+SISTEMAS DE RECOMENDACION
+-------------------------
+los sistemas de recomendacion modelas las interacciones usuario-item usando informacion historica
+	modelos basados en memoria (o metodo de vecino mas cercano)
+	modelos basados en aprendizaje de variable latente o no observados (factorizacion de matrices)
+corresponde a un modelo supervisado
+separar datos entre set de entrenamiento y testeo
+ambos son modelos de filtros colaborativos <- utilizan interacciones pasadas en conjunto para predecir y no otro filtro
+no se pueden hacer recomendaciones a un usuario nuevo, de modo que hay que volver a entrenar el modelo
+
+- Metodos basados en memoria
+se clasifican dentro de la familia KNN (K-neares Neighbour)
+se calcula una matriz de similitud entre usuarios o entre items, luego se utilizando los k usuarios o items mas similares para realizar prediccion
+la matriz de similitud se construye con la correlacion de pearon o la cos-similitud
+
+- Medidas de similitud
+	- similitud de pearson: basada en el coeficiente de pearson
+	- cos-similitud: basada en propiedades geometricas de los vectores (interaccion de usuario o item), entrega el angulo de esos vectores evaluado en coseno
+
+- Factorizacion de matrices
+encuetra factores latentes (o no observados) para modelar caracteristicas de usuarios o items y en conjunto predecir una valoracion
+los factores como tal no tienen una interpretacion directa
+luego de predecir, se calcula el error cuadratico medio en raiz cuadrada para darle interpretacion
